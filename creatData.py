@@ -10,7 +10,8 @@ def _bytes_feature(value):
     return tf.train.Feature(bytes_list = tf.train.BytesList(value=[value]))
 
 cwd = os.getcwd()
-classes =["blue","yellow","green","white","black"]
+writer = tf.python_io.TFRecordWriter("./train.tfrecords")
+classes =["blue","yellow","green","white"]
 for index, name in enumerate(classes):
     class_path = "I:/" + name+"/"
     dirnum = len(os.listdir(class_path))
@@ -20,10 +21,17 @@ for index, name in enumerate(classes):
 #        img=tf.image.decode_jpeg(img_path)
 #        plt.imshow(img.eval())
         img = Image.open(img_path)
-        plt.imshow(img)
+        img = img.resize((30,30))
+        #plt.imshow(img)
+        img_raw=img.tobytes()
+        example = tf.train.Example(features=tf.train.Features(feature={
+              'label':_int64_feature(index),
+              'img_raw':_bytes_feature(img_raw)}))
+        writer.write(example.SerializeToString())
+writer.close()
 #        img = img.resize((224, 224))        
-        plt.show()
-        os.system("pause")
+#        plt.show()
+#        os.system("pause")
 #        print(img_path)
 #writer = tf.python_io.TFRecordWriter("./platecolor.tfrecords")
 #mnist = input_data.read_data_sets("./data",dtype = tf.uint8,one_hot= True)
